@@ -310,6 +310,7 @@ public class PlayerControlView extends FrameLayout {
       int defStyleAttr,
       @Nullable AttributeSet playbackAttrs) {
     super(context, attrs, defStyleAttr);
+    System.out.println("VECTOR EXO PLAYER - created");
     int controllerLayoutId = R.layout.exo_player_control_view;
     rewindMs = DEFAULT_REWIND_MS;
     fastForwardMs = DEFAULT_FAST_FORWARD_MS;
@@ -438,6 +439,8 @@ public class PlayerControlView extends FrameLayout {
     shuffleOnContentDescription = resources.getString(R.string.exo_controls_shuffle_on_description);
     shuffleOffContentDescription =
         resources.getString(R.string.exo_controls_shuffle_off_description);
+
+
   }
 
   @SuppressWarnings("ResourceType")
