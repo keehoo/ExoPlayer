@@ -1149,9 +1149,9 @@ public class PlayerControlView extends FrameLayout {
       return false;
     }
     if (event.getAction() == KeyEvent.ACTION_DOWN) {
-      if (keyCode == KeyEvent.KEYCODE_MEDIA_FAST_FORWARD) {
+      if (keyCode == KeyEvent.KEYCODE_MEDIA_NEXT) {
         fastForward(player);
-      } else if (keyCode == KeyEvent.KEYCODE_MEDIA_REWIND) {
+      } else if (keyCode == KeyEvent.KEYCODE_MEDIA_PREVIOUS) {
         rewind(player);
       } else if (event.getRepeatCount() == 0) {
         switch (keyCode) {
@@ -1164,12 +1164,12 @@ public class PlayerControlView extends FrameLayout {
           case KeyEvent.KEYCODE_MEDIA_PAUSE:
             controlDispatcher.dispatchSetPlayWhenReady(player, false);
             break;
-          case KeyEvent.KEYCODE_MEDIA_NEXT:
-            next(player);
-            break;
-          case KeyEvent.KEYCODE_MEDIA_PREVIOUS:
-            previous(player);
-            break;
+//          case KeyEvent.KEYCODE_MEDIA_NEXT:
+//            next(player);
+//            break;
+//          case KeyEvent.KEYCODE_MEDIA_PREVIOUS:
+//            previous(player);
+//            break;
           default:
             break;
         }
@@ -1191,9 +1191,9 @@ public class PlayerControlView extends FrameLayout {
         || keyCode == KeyEvent.KEYCODE_MEDIA_REWIND
         || keyCode == KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE
         || keyCode == KeyEvent.KEYCODE_MEDIA_PLAY
-        || keyCode == KeyEvent.KEYCODE_MEDIA_PAUSE
-        || keyCode == KeyEvent.KEYCODE_MEDIA_NEXT
-        || keyCode == KeyEvent.KEYCODE_MEDIA_PREVIOUS;
+        || keyCode == KeyEvent.KEYCODE_MEDIA_PAUSE;
+//        || keyCode == KeyEvent.KEYCODE_MEDIA_NEXT
+//        || keyCode == KeyEvent.KEYCODE_MEDIA_PREVIOUS;
   }
 
   /**
