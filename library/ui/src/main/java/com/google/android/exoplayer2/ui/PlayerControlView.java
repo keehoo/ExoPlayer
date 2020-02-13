@@ -1191,9 +1191,9 @@ public class PlayerControlView extends FrameLayout {
         || keyCode == KeyEvent.KEYCODE_MEDIA_REWIND
         || keyCode == KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE
         || keyCode == KeyEvent.KEYCODE_MEDIA_PLAY
-        || keyCode == KeyEvent.KEYCODE_MEDIA_PAUSE;
-//        || keyCode == KeyEvent.KEYCODE_MEDIA_NEXT
-//        || keyCode == KeyEvent.KEYCODE_MEDIA_PREVIOUS;
+        || keyCode == KeyEvent.KEYCODE_MEDIA_PAUSE
+        || keyCode == KeyEvent.KEYCODE_MEDIA_NEXT
+        || keyCode == KeyEvent.KEYCODE_MEDIA_PREVIOUS;
   }
 
   /**
