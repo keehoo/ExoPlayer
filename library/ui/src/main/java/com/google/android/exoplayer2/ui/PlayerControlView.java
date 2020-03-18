@@ -1152,9 +1152,9 @@ public class PlayerControlView extends FrameLayout {
       return false;
     }
     if (event.getAction() == KeyEvent.ACTION_DOWN) {
-      if (keyCode == KeyEvent.KEYCODE_MEDIA_NEXT) {
+      if (keyCode == KeyEvent.KEYCODE_MEDIA_FAST_FORWARD) {
         fastForward(player);
-      } else if (keyCode == KeyEvent.KEYCODE_MEDIA_PREVIOUS) {
+      } else if (keyCode == KeyEvent.KEYCODE_MEDIA_REWIND) {
         rewind(player);
       } else if (event.getRepeatCount() == 0) {
         switch (keyCode) {
