@@ -290,7 +290,7 @@ public class PlayerView extends FrameLayout implements AdsLoader.AdViewProvider 
   @Nullable private final SubtitleView subtitleView;
   @Nullable private final View bufferingView;
   @Nullable private final TextView errorMessageView;
-  @Nullable final PlayerControlView controller;
+  @Nullable public final PlayerControlView controller;
   @Nullable private final FrameLayout adOverlayFrameLayout;
   @Nullable private final FrameLayout overlayFrameLayout;
 
