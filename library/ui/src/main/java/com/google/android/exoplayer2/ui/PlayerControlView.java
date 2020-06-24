@@ -1026,7 +1026,7 @@ public class PlayerControlView extends FrameLayout {
         long now = System.currentTimeMillis();
         long d = now - contentDuration;
 
-        ZonedDateTime calculatedTime = ZonedDateTime.from(Instant.ofEpochMilli(d));
+        LocalDateTime calculatedTime = LocalDateTime.from(Instant.ofEpochMilli(d));
 
         System.out.println("CONTENT DEBUG AAAAAAAAA " + calculatedTime.toString());
         System.out.println("CONTENT DEBUG duration [date]" + date);
