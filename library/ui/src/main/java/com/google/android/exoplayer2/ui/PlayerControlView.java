@@ -42,8 +42,12 @@ import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.RepeatModeUtil;
 import com.google.android.exoplayer2.util.Util;
 import java.text.DateFormat;
+import java.time.Duration;
 import java.time.Instant;
+import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.time.temporal.TemporalAmount;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Formatter;
@@ -1017,6 +1021,14 @@ public class PlayerControlView extends FrameLayout {
         System.out.println("CONTENT DEBUG duration [ms] " + contentDuration);
         String date = Instant.ofEpochMilli(contentDuration).atZone(ZoneId.systemDefault())
             .toLocalDate().toString();
+        System.out.println("CONTENT DEBUG duration [date]" + date);
+
+        long now = System.currentTimeMillis();
+        long d = now - contentDuration;
+
+        ZonedDateTime calculatedTime = ZonedDateTime.from(Instant.ofEpochMilli(d));
+
+        System.out.println("CONTENT DEBUG AAAAAAAAA " + calculatedTime.toString());
         System.out.println("CONTENT DEBUG duration [date]" + date);
         System.out.println("CONTENT DEBUG percentage [int]" + player.getBufferedPercentage());
 
