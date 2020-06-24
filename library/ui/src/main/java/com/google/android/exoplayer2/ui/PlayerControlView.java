@@ -20,6 +20,7 @@ import android.content.Context;
 import android.content.res.Resources;
 import android.content.res.TypedArray;
 import android.graphics.drawable.Drawable;
+import android.os.Build;
 import android.os.Looper;
 import android.os.SystemClock;
 import android.util.AttributeSet;
@@ -40,8 +41,9 @@ import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.RepeatModeUtil;
 import com.google.android.exoplayer2.util.Util;
-import java.time.ZonedDateTime;
-import java.time.format.DateTimeFormatter;
+import java.text.DateFormat;
+import java.time.Instant;
+import java.time.ZoneId;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Formatter;
@@ -56,7 +58,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
  * outlined below.
  *
  * <h3>Attributes</h3>
- *
+ * <p>
  * The following attributes can be set on a PlayerControlView when used in a layout XML file:
  *
  * <ul>
@@ -108,7 +110,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
  * </ul>
  *
  * <h3>Overriding the layout file</h3>
- *
+ * <p>
  * To customize the layout of PlayerControlView throughout your app, or just for certain
  * configurations, you can define {@code exo_player_control_view.xml} layout files in your
  * application {@code res/layout*} directories. These layouts will override the one provided by the
@@ -180,7 +182,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
  * must be of the expected type.
  *
  * <h3>Specifying a custom layout file</h3>
- *
+ * <p>
  * Defining your own {@code exo_player_control_view.xml} is useful to customize the layout of
  * PlayerControlView throughout your application. It's also possible to customize the layout for a
  * single instance in a layout file. This is achieved by setting the {@code controller_layout_id}
@@ -193,7 +195,9 @@ public class PlayerControlView extends FrameLayout {
     ExoPlayerLibraryInfo.registerModule("goog.exo.ui");
   }
 
-  /** Listener to be notified about changes of the visibility of the UI control. */
+  /**
+   * Listener to be notified about changes of the visibility of the UI control.
+   */
   public interface VisibilityListener {
 
     /**
@@ -204,50 +208,79 @@ public class PlayerControlView extends FrameLayout {
     void onVisibilityChange(int visibility);
   }
 
-  /** Listener to be notified when progress has been updated. */
+  /**
+   * Listener to be notified when progress has been updated.
+   */
   public interface ProgressUpdateListener {
 
     /**
      * Called when progress needs to be updated.
      *
-     * @param position The current position.
+     * @param position         The current position.
      * @param bufferedPosition The current buffered position.
      */
     void onProgressUpdate(long position, long bufferedPosition);
   }
 
-  /** The default fast forward increment, in milliseconds. */
+  /**
+   * The default fast forward increment, in milliseconds.
+   */
   public static final int DEFAULT_FAST_FORWARD_MS = 15000;
-  /** The default rewind increment, in milliseconds. */
+  /**
+   * The default rewind increment, in milliseconds.
+   */
   public static final int DEFAULT_REWIND_MS = 5000;
-  /** The default show timeout, in milliseconds. */
+  /**
+   * The default show timeout, in milliseconds.
+   */
   public static final int DEFAULT_SHOW_TIMEOUT_MS = 5000;
-  /** The default repeat toggle modes. */
-  public static final @RepeatModeUtil.RepeatToggleModes int DEFAULT_REPEAT_TOGGLE_MODES =
+  /**
+   * The default repeat toggle modes.
+   */
+  public static final @RepeatModeUtil.RepeatToggleModes
+  int DEFAULT_REPEAT_TOGGLE_MODES =
       RepeatModeUtil.REPEAT_TOGGLE_MODE_NONE;
-  /** The default minimum interval between time bar position updates. */
+  /**
+   * The default minimum interval between time bar position updates.
+   */
   public static final int DEFAULT_TIME_BAR_MIN_UPDATE_INTERVAL_MS = 200;
-  /** The maximum number of windows that can be shown in a multi-window time bar. */
+  /**
+   * The maximum number of windows that can be shown in a multi-window time bar.
+   */
   public static final int MAX_WINDOWS_FOR_MULTI_WINDOW_TIME_BAR = 100;
 
   private static final long MAX_POSITION_FOR_SEEK_TO_PREVIOUS = 3000;
-  /** The maximum interval between time bar position updates. */
+  /**
+   * The maximum interval between time bar position updates.
+   */
   private static final int MAX_UPDATE_INTERVAL_MS = 1000;
 
   private final ComponentListener componentListener;
   private final CopyOnWriteArrayList<VisibilityListener> visibilityListeners;
-  @Nullable private final View previousButton;
-  @Nullable private final View nextButton;
-  @Nullable private final View playButton;
-  @Nullable private final View pauseButton;
-  @Nullable private final View fastForwardButton;
-  @Nullable private final View rewindButton;
-  @Nullable private final ImageView repeatToggleButton;
-  @Nullable private final ImageView shuffleButton;
-  @Nullable private final View vrButton;
-  @Nullable private final TextView durationView;
-  @Nullable private final TextView positionView;
-  @Nullable private final TimeBar timeBar;
+  @Nullable
+  private final View previousButton;
+  @Nullable
+  private final View nextButton;
+  @Nullable
+  private final View playButton;
+  @Nullable
+  private final View pauseButton;
+  @Nullable
+  private final View fastForwardButton;
+  @Nullable
+  private final View rewindButton;
+  @Nullable
+  private final ImageView repeatToggleButton;
+  @Nullable
+  private final ImageView shuffleButton;
+  @Nullable
+  private final View vrButton;
+  @Nullable
+  private final TextView durationView;
+  @Nullable
+  private final TextView positionView;
+  @Nullable
+  private final TimeBar timeBar;
   private final StringBuilder formatBuilder;
   private final Formatter formatter;
   private final Timeline.Period period;
@@ -268,10 +301,13 @@ public class PlayerControlView extends FrameLayout {
   private final String shuffleOnContentDescription;
   private final String shuffleOffContentDescription;
 
-  @Nullable private Player player;
+  @Nullable
+  private Player player;
   private com.google.android.exoplayer2.ControlDispatcher controlDispatcher;
-  @Nullable private ProgressUpdateListener progressUpdateListener;
-  @Nullable private PlaybackPreparer playbackPreparer;
+  @Nullable
+  private ProgressUpdateListener progressUpdateListener;
+  @Nullable
+  private PlaybackPreparer playbackPreparer;
 
   private boolean isAttachedToWindow;
   private boolean showMultiWindowTimeBar;
@@ -281,7 +317,8 @@ public class PlayerControlView extends FrameLayout {
   private int fastForwardMs;
   private int showTimeoutMs;
   private int timeBarMinUpdateIntervalMs;
-  private @RepeatModeUtil.RepeatToggleModes int repeatToggleModes;
+  private @RepeatModeUtil.RepeatToggleModes
+  int repeatToggleModes;
   private boolean showShuffleButton;
   private long hideAtMs;
   private long[] adGroupTimesMs;
@@ -303,9 +340,9 @@ public class PlayerControlView extends FrameLayout {
   }
 
   @SuppressWarnings({
-    "nullness:argument.type.incompatible",
-    "nullness:method.invocation.invalid",
-    "nullness:methodref.receiver.bound.invalid"
+      "nullness:argument.type.incompatible",
+      "nullness:method.invocation.invalid",
+      "nullness:methodref.receiver.bound.invalid"
   })
   public PlayerControlView(
       Context context,
@@ -447,7 +484,8 @@ public class PlayerControlView extends FrameLayout {
   }
 
   @SuppressWarnings("ResourceType")
-  private static @RepeatModeUtil.RepeatToggleModes int getRepeatToggleModes(
+  private static @RepeatModeUtil.RepeatToggleModes
+  int getRepeatToggleModes(
       TypedArray a, @RepeatModeUtil.RepeatToggleModes int repeatToggleModes) {
     return a.getInt(R.styleable.PlayerControlView_repeat_toggle_modes, repeatToggleModes);
   }
@@ -465,8 +503,8 @@ public class PlayerControlView extends FrameLayout {
    * Sets the {@link Player} to control.
    *
    * @param player The {@link Player} to control, or {@code null} to detach the current player. Only
-   *     players which are accessed on the main thread are supported ({@code
-   *     player.getApplicationLooper() == Looper.getMainLooper()}).
+   *               players which are accessed on the main thread are supported ({@code
+   *               player.getApplicationLooper() == Looper.getMainLooper()}).
    */
   public void setPlayer(@Nullable Player player) {
     Assertions.checkState(Looper.myLooper() == Looper.getMainLooper());
@@ -487,9 +525,8 @@ public class PlayerControlView extends FrameLayout {
 
   /**
    * Sets whether the time bar should show all windows, as opposed to just the current one. If the
-   * timeline has a period with unknown duration or more than {@link
-   * #MAX_WINDOWS_FOR_MULTI_WINDOW_TIME_BAR} windows the time bar will fall back to showing a single
-   * window.
+   * timeline has a period with unknown duration or more than {@link #MAX_WINDOWS_FOR_MULTI_WINDOW_TIME_BAR}
+   * windows the time bar will fall back to showing a single window.
    *
    * @param showMultiWindowTimeBar Whether the time bar should show all windows.
    */
@@ -504,9 +541,10 @@ public class PlayerControlView extends FrameLayout {
    * markers are shown in addition to any ad markers for ads in the player's timeline.
    *
    * @param extraAdGroupTimesMs The millisecond timestamps of the extra ad markers to show, or
-   *     {@code null} to show no extra ad markers.
+   *                            {@code null} to show no extra ad markers.
    * @param extraPlayedAdGroups Whether each ad has been played. Must be the same length as {@code
-   *     extraAdGroupTimesMs}, or {@code null} if {@code extraAdGroupTimesMs} is {@code null}.
+   *                            extraAdGroupTimesMs}, or {@code null} if {@code extraAdGroupTimesMs}
+   *                            is {@code null}.
    */
   public void setExtraAdGroupMarkers(
       @Nullable long[] extraAdGroupTimesMs, @Nullable boolean[] extraPlayedAdGroups) {
@@ -553,7 +591,7 @@ public class PlayerControlView extends FrameLayout {
    * Sets the {@link PlaybackPreparer}.
    *
    * @param playbackPreparer The {@link PlaybackPreparer}, or null to remove the current playback
-   *     preparer.
+   *                         preparer.
    */
   public void setPlaybackPreparer(@Nullable PlaybackPreparer playbackPreparer) {
     this.playbackPreparer = playbackPreparer;
@@ -563,7 +601,7 @@ public class PlayerControlView extends FrameLayout {
    * Sets the {@link com.google.android.exoplayer2.ControlDispatcher}.
    *
    * @param controlDispatcher The {@link com.google.android.exoplayer2.ControlDispatcher}, or null
-   *     to use {@link com.google.android.exoplayer2.DefaultControlDispatcher}.
+   *                          to use {@link com.google.android.exoplayer2.DefaultControlDispatcher}.
    */
   public void setControlDispatcher(
       @Nullable com.google.android.exoplayer2.ControlDispatcher controlDispatcher) {
@@ -577,7 +615,7 @@ public class PlayerControlView extends FrameLayout {
    * Sets the rewind increment in milliseconds.
    *
    * @param rewindMs The rewind increment in milliseconds. A non-positive value will cause the
-   *     rewind button to be disabled.
+   *                 rewind button to be disabled.
    */
   public void setRewindIncrementMs(int rewindMs) {
     this.rewindMs = rewindMs;
@@ -588,7 +626,7 @@ public class PlayerControlView extends FrameLayout {
    * Sets the fast forward increment in milliseconds.
    *
    * @param fastForwardMs The fast forward increment in milliseconds. A non-positive value will
-   *     cause the fast forward button to be disabled.
+   *                      cause the fast forward button to be disabled.
    */
   public void setFastForwardIncrementMs(int fastForwardMs) {
     this.fastForwardMs = fastForwardMs;
@@ -600,7 +638,7 @@ public class PlayerControlView extends FrameLayout {
    * this duration of time has elapsed without user input.
    *
    * @return The duration in milliseconds. A non-positive value indicates that the controls will
-   *     remain visible indefinitely.
+   * remain visible indefinitely.
    */
   public int getShowTimeoutMs() {
     return showTimeoutMs;
@@ -611,7 +649,7 @@ public class PlayerControlView extends FrameLayout {
    * duration of time has elapsed without user input.
    *
    * @param showTimeoutMs The duration in milliseconds. A non-positive value will cause the controls
-   *     to remain visible indefinitely.
+   *                      to remain visible indefinitely.
    */
   public void setShowTimeoutMs(int showTimeoutMs) {
     this.showTimeoutMs = showTimeoutMs;
@@ -626,7 +664,8 @@ public class PlayerControlView extends FrameLayout {
    *
    * @return The currently enabled {@link RepeatModeUtil.RepeatToggleModes}.
    */
-  public @RepeatModeUtil.RepeatToggleModes int getRepeatToggleModes() {
+  public @RepeatModeUtil.RepeatToggleModes
+  int getRepeatToggleModes() {
     return repeatToggleModes;
   }
 
@@ -653,7 +692,9 @@ public class PlayerControlView extends FrameLayout {
     updateRepeatModeButton();
   }
 
-  /** Returns whether the shuffle button is shown. */
+  /**
+   * Returns whether the shuffle button is shown.
+   */
   public boolean getShowShuffleButton() {
     return showShuffleButton;
   }
@@ -668,7 +709,9 @@ public class PlayerControlView extends FrameLayout {
     updateShuffleButton();
   }
 
-  /** Returns whether the VR button is shown. */
+  /**
+   * Returns whether the VR button is shown.
+   */
   public boolean getShowVrButton() {
     return vrButton != null && vrButton.getVisibility() == VISIBLE;
   }
@@ -703,7 +746,7 @@ public class PlayerControlView extends FrameLayout {
    * in a step-wise update with less CPU usage.
    *
    * @param minUpdateIntervalMs The minimum interval between time bar position updates, in
-   *     milliseconds.
+   *                            milliseconds.
    */
   public void setTimeBarMinUpdateInterval(int minUpdateIntervalMs) {
     // Do not accept values below 16ms (60fps) and larger than the maximum update interval.
@@ -728,7 +771,9 @@ public class PlayerControlView extends FrameLayout {
     hideAfterTimeout();
   }
 
-  /** Hides the controller. */
+  /**
+   * Hides the controller.
+   */
   public void hide() {
     if (isVisible()) {
       setVisibility(GONE);
@@ -741,7 +786,9 @@ public class PlayerControlView extends FrameLayout {
     }
   }
 
-  /** Returns whether the controller is currently visible. */
+  /**
+   * Returns whether the controller is currently visible.
+   */
   public boolean isVisible() {
     return getVisibility() == VISIBLE;
   }
@@ -933,7 +980,9 @@ public class PlayerControlView extends FrameLayout {
     }
     long durationMs = C.usToMs(durationUs);
     if (durationView != null) {
-      durationView.setText(Calendar.getInstance().getTime().toString());
+      DateFormat dateFormat = android.text.format.DateFormat.getTimeFormat(getContext());
+
+      durationView.setText(dateFormat.format(Calendar.getInstance().getTime()));
 //      durationView.setText("DEBUG "+ Util.getStringForTime(formatBuilder, formatter, durationMs));
     }
     if (timeBar != null) {
@@ -961,7 +1010,18 @@ public class PlayerControlView extends FrameLayout {
     long bufferedPosition = 0;
     if (player != null) {
       position = currentWindowOffset + player.getContentPosition();
+      long contentDuration = player.getContentDuration();
       bufferedPosition = currentWindowOffset + player.getContentBufferedPosition();
+
+      if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+        System.out.println("CONTENT DEBUG duration [ms] " + contentDuration);
+        String date = Instant.ofEpochMilli(contentDuration).atZone(ZoneId.systemDefault())
+            .toLocalDate().toString();
+        System.out.println("CONTENT DEBUG duration [date]" + date);
+        System.out.println("CONTENT DEBUG percentage [int]" + player.getBufferedPercentage());
+
+      }
+
     }
     if (positionView != null && !scrubbing) {
       positionView.setText(Util.getStringForTime(formatBuilder, formatter, position));
@@ -1026,7 +1086,7 @@ public class PlayerControlView extends FrameLayout {
     int previousWindowIndex = player.getPreviousWindowIndex();
     if (previousWindowIndex != C.INDEX_UNSET
         && (player.getCurrentPosition() <= MAX_POSITION_FOR_SEEK_TO_PREVIOUS
-            || (window.isDynamic && !window.isSeekable))) {
+        || (window.isDynamic && !window.isSeekable))) {
       seekTo(player, previousWindowIndex, C.TIME_UNSET);
     } else {
       seekTo(player, windowIndex, /* positionMs= */ 0);
@@ -1207,7 +1267,7 @@ public class PlayerControlView extends FrameLayout {
    * Returns whether the specified {@code timeline} can be shown on a multi-window time bar.
    *
    * @param timeline The {@link Timeline} to check.
-   * @param window A scratch {@link Timeline.Window} instance.
+   * @param window   A scratch {@link Timeline.Window} instance.
    * @return Whether the specified timeline can be shown on a multi-window time bar.
    */
   private static boolean canShowMultiWindowTimeBar(Timeline timeline, Timeline.Window window) {
