@@ -1016,7 +1016,7 @@ public class PlayerControlView extends FrameLayout {
       position = currentWindowOffset + player.getContentPosition();
       long contentDuration = player.getContentDuration();
       bufferedPosition = currentWindowOffset + player.getContentBufferedPosition();
-
+      try {
       if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
         System.out.println("CONTENT DEBUG duration [ms] " + contentDuration);
         String date = Instant.ofEpochMilli(contentDuration).atZone(ZoneId.systemDefault())
@@ -1032,6 +1032,8 @@ public class PlayerControlView extends FrameLayout {
         System.out.println("CONTENT DEBUG duration [date]" + date);
         System.out.println("CONTENT DEBUG percentage [int]" + player.getBufferedPercentage());
 
+      }} catch (Throwable exception) {
+        System.out.println("CONTENT DEBUG Exception " +exception.getMessage());
       }
 
     }
