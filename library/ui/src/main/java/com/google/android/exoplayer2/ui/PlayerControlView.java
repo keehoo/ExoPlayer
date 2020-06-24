@@ -40,7 +40,10 @@ import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.RepeatModeUtil;
 import com.google.android.exoplayer2.util.Util;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
+import java.util.Calendar;
 import java.util.Formatter;
 import java.util.Locale;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -930,7 +933,8 @@ public class PlayerControlView extends FrameLayout {
     }
     long durationMs = C.usToMs(durationUs);
     if (durationView != null) {
-      durationView.setText(Util.getStringForTime(formatBuilder, formatter, durationMs));
+      durationView.setText(Calendar.getInstance().getTime().toString());
+//      durationView.setText("DEBUG "+ Util.getStringForTime(formatBuilder, formatter, durationMs));
     }
     if (timeBar != null) {
       timeBar.setDuration(durationMs);
