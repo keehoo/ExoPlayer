@@ -42,14 +42,10 @@ import com.google.android.exoplayer2.util.Assertions;
 import com.google.android.exoplayer2.util.RepeatModeUtil;
 import com.google.android.exoplayer2.util.Util;
 import java.text.DateFormat;
-import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
-import java.time.ZonedDateTime;
-import java.time.temporal.TemporalAmount;
 import java.util.Arrays;
-import java.util.Calendar;
 import java.util.Formatter;
 import java.util.Locale;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -986,7 +982,8 @@ public class PlayerControlView extends FrameLayout {
     if (durationView != null) {
       DateFormat dateFormat = android.text.format.DateFormat.getTimeFormat(getContext());
 
-      durationView.setText(dateFormat.format(Calendar.getInstance().getTime()));
+//      durationView.setText(dateFormat.format(Calendar.getInstance().getTime()));
+      durationView.setText("LIVE");
 //      durationView.setText("DEBUG "+ Util.getStringForTime(formatBuilder, formatter, durationMs));
     }
     if (timeBar != null) {
@@ -1019,23 +1016,23 @@ public class PlayerControlView extends FrameLayout {
       long now = System.currentTimeMillis();
       long d = now - contentDuration;
       try {
-      if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-        System.out.println("CONTENT DEBUG duration [ms] " + contentDuration);
-        String date = Instant.ofEpochMilli(contentDuration).atZone(ZoneId.systemDefault())
-            .toLocalDate().toString();
-        System.out.println("CONTENT DEBUG duration [date]" + date);
-
-
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+          System.out.println("CONTENT DEBUG duration [ms] " + contentDuration);
+          String date = Instant.ofEpochMilli(contentDuration).atZone(ZoneId.systemDefault())
+              .toLocalDate().toString();
+          System.out.println("CONTENT DEBUG duration [date]" + date);
 
 //        ZonedDateTime calculatedTime = ZonedDateTime.from(Instant.ofEpochMilli(d)).toLocalDateTime().atZone(ZoneId.systemDefault());
-        LocalDateTime localDateTime = LocalDateTime.ofInstant(Instant.ofEpochMilli(d), ZoneId.systemDefault());
+          LocalDateTime localDateTime = LocalDateTime
+              .ofInstant(Instant.ofEpochMilli(d), ZoneId.systemDefault());
 
-        System.out.println("CONTENT DEBUG AAAAAAAAA " + localDateTime.toString());
-        System.out.println("CONTENT DEBUG duration [date]" + date);
-        System.out.println("CONTENT DEBUG percentage [int]" + player.getBufferedPercentage());
+          System.out.println("CONTENT DEBUG AAAAAAAAA " + localDateTime.toString());
+          System.out.println("CONTENT DEBUG duration [date]" + date);
+          System.out.println("CONTENT DEBUG percentage [int]" + player.getBufferedPercentage());
 
-      }} catch (Throwable exception) {
-        System.out.println("CONTENT DEBUG Exception " +exception.getMessage());
+        }
+      } catch (Throwable exception) {
+        System.out.println("CONTENT DEBUG Exception " + exception.getMessage());
       }
 
     }
@@ -1050,9 +1047,19 @@ public class PlayerControlView extends FrameLayout {
       long d = now - contentDuration;
 //      positionView.setText(Util.getStringForTime(formatBuilder, formatter, position));
       if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-        positionView.setText(LocalDateTime.ofInstant(Instant.ofEpochMilli(d), ZoneId.systemDefault()).toString());
+
+        LocalDateTime dateTime = LocalDateTime
+            .ofInstant(Instant.ofEpochMilli(d), ZoneId.systemDefault());
+
+        int hour = dateTime.getHour();
+        int minute = dateTime.getMinute();
+        int seconds = dateTime.getSecond();
+
+        positionView.setText(
+            new StringBuilder().append(hour).append(":").append(minute).append(":").append(seconds)
+                .toString());
       } else {
-              positionView.setText(Util.getStringForTime(formatBuilder, formatter, position));
+        positionView.setText(Util.getStringForTime(formatBuilder, formatter, position));
       }
     }
     if (timeBar != null) {
