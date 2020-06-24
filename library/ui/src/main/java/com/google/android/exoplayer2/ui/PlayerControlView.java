@@ -1016,6 +1016,8 @@ public class PlayerControlView extends FrameLayout {
       position = currentWindowOffset + player.getContentPosition();
       long contentDuration = player.getContentDuration();
       bufferedPosition = currentWindowOffset + player.getContentBufferedPosition();
+      long now = System.currentTimeMillis();
+      long d = now - contentDuration;
       try {
       if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
         System.out.println("CONTENT DEBUG duration [ms] " + contentDuration);
@@ -1023,8 +1025,7 @@ public class PlayerControlView extends FrameLayout {
             .toLocalDate().toString();
         System.out.println("CONTENT DEBUG duration [date]" + date);
 
-        long now = System.currentTimeMillis();
-        long d = now - contentDuration;
+
 
 //        ZonedDateTime calculatedTime = ZonedDateTime.from(Instant.ofEpochMilli(d)).toLocalDateTime().atZone(ZoneId.systemDefault());
         LocalDateTime localDateTime = LocalDateTime.ofInstant(Instant.ofEpochMilli(d), ZoneId.systemDefault());
@@ -1039,7 +1040,20 @@ public class PlayerControlView extends FrameLayout {
 
     }
     if (positionView != null && !scrubbing) {
-      positionView.setText(Util.getStringForTime(formatBuilder, formatter, position));
+      long contentDuration = player.getContentDuration();
+
+//      if (contentDuration == null) {
+//
+//      }
+
+      long now = System.currentTimeMillis();
+      long d = now - contentDuration;
+//      positionView.setText(Util.getStringForTime(formatBuilder, formatter, position));
+      if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+        positionView.setText(LocalDateTime.ofInstant(Instant.ofEpochMilli(d), ZoneId.systemDefault()).toString());
+      } else {
+              positionView.setText(Util.getStringForTime(formatBuilder, formatter, position));
+      }
     }
     if (timeBar != null) {
       timeBar.setPosition(position);
